@@ -19,7 +19,13 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173'],
+    // Keep local development working while allowing the separately deployed
+    // frontend to be configured through Railway variables. Multiple origins
+    // may be supplied as a comma-separated CORS_ALLOWED_ORIGINS value.
+    'allowed_origins' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', env('CORS_ALLOWED_ORIGINS', env('FRONTEND_URL', 'http://localhost:5173')))
+    ))),
 
     'allowed_origins_patterns' => [],
 
