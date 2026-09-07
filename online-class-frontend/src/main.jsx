@@ -10,6 +10,7 @@ import { AdminAuthProvider } from "./context/AdminAuthContext.jsx";
 import { UserAuthProvider } from "./context/UserAuthContext.jsx";
 import { SiteSettingsProvider } from "./context/SiteSettingsContext.jsx";
 import GlobalSecurityGuard from "./components/GlobalSecurityGuard.jsx";
+import PageLifecycleGuard from "./components/PageLifecycleGuard.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -17,9 +18,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <AdminAuthProvider>
         <UserAuthProvider>
           <SiteSettingsProvider>
-            <GlobalSecurityGuard>
-              <App />
-            </GlobalSecurityGuard>
+            <PageLifecycleGuard>
+              <GlobalSecurityGuard>
+                <App />
+              </GlobalSecurityGuard>
+            </PageLifecycleGuard>
           </SiteSettingsProvider>
         </UserAuthProvider>
       </AdminAuthProvider>
