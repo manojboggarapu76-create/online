@@ -8,17 +8,14 @@ use Illuminate\Http\Request;
 class TrustProxies extends Middleware
 {
     /**
-     * The trusted proxies for this application.
+     * Railway terminates HTTPS at its edge proxy. Trust the forwarded
+     * scheme/host so Laravel validates signed URLs against the public HTTPS
+     * request instead of the internal HTTP connection.
      *
      * @var array<int, string>|string|null
      */
-    protected $proxies;
+    protected $proxies = '*';
 
-    /**
-     * The headers that should be used to detect proxies.
-     *
-     * @var int
-     */
     protected $headers =
         Request::HEADER_X_FORWARDED_FOR |
         Request::HEADER_X_FORWARDED_HOST |
