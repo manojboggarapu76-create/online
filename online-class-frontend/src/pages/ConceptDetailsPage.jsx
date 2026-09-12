@@ -233,6 +233,13 @@ export default function ConceptDetailsPage() {
         return;
       }
 
+      const documentUrl = getDocumentUrl(documentToView);
+
+      if (!documentUrl) {
+        setPayNotice({ type: "danger", msg: "This document is not ready to view yet. Please try again." });
+        return;
+      }
+
       setActiveDocument(documentToView);
       if (isAuthed) {
         api
@@ -338,6 +345,62 @@ export default function ConceptDetailsPage() {
       path.includes("video")
     );
   };
+
+  const isTextDocument = (doc) => {
+    if (!doc) return false;
+
+    const type = String(doc.file_type || doc.mime_type || "")
+      .toLowerCase()
+      .trim();
+
+    const fileName = String(doc.file_name || doc.file_url || doc.file_path || "")
+      .split("?")[0]
+      .split("#")[0]
+      .toLowerCase();
+
+    const extension = fileName.match(/\.([a-z0-9]+)$/i)?.[1] || "";
+
+    const textExtensions = [
+      "txt",
+      "text",
+      "md",
+      "markdown",
+      "csv",
+      "tsv",
+      "json",
+      "xml",
+      "html",
+      "htm",
+      "css",
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "php",
+      "py",
+      "java",
+      "c",
+      "cpp",
+      "h",
+      "hpp",
+      "sql",
+      "yml",
+      "yaml",
+      "ini",
+      "conf",
+      "log",
+      "srt",
+      "vtt",
+    ];
+
+    return (
+      textExtensions.includes(type) ||
+      textExtensions.includes(extension) ||
+      type.startsWith("text/")
+    );
+  };
+
+  const getDocumentUrl = (doc) => doc?.file_url || doc?.file_path || doc?.url || "";
 
   const getDocIcon = (type) => {
     const t = (type || "").toLowerCase();
@@ -1191,7 +1254,37 @@ export default function ConceptDetailsPage() {
                 </>
               )}
 
-              {isImageDoc(activeDocument) ? (
+              {isTextDocument(activeDocument) ? (
+                <div
+                  className="w-100 h-100 p-3"
+                  style={{
+                    minHeight: docViewSize === "expanded" ? "calc(100vh - 180px)" : "72vh",
+                    background: "#0f172a",
+                    overflow: "auto",
+                  }}
+                  onContextMenu={(e) => e.preventDefault()}
+                >
+                  <div
+                    className="w-100 h-100 rounded-3 overflow-hidden bg-white"
+                    style={{
+                      minHeight: docViewSize === "expanded" ? "calc(100vh - 180px)" : "68vh",
+                    }}
+                  >
+                    <iframe
+                      src={getDocumentUrl(activeDocument)}
+                      title={activeDocument.title || "Text document"}
+                      className="w-100 h-100 border-0"
+                      style={{
+                        minHeight: docViewSize === "expanded" ? "calc(100vh - 180px)" : "68vh",
+                        background: "#fff",
+                      }}
+                      loading="eager"
+                      referrerPolicy="no-referrer"
+                      sandbox="allow-same-origin"
+                    />
+                  </div>
+                </div>
+              ) : isImageDoc(activeDocument) ? (
                 <div
                   className="w-100 h-100 p-3"
                   style={{
