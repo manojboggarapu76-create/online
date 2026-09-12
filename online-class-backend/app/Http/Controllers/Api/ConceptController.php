@@ -670,8 +670,35 @@ class ConceptController extends Controller
             'gif' => 'image/gif',
             'svg' => 'image/svg+xml',
             'txt' => 'text/plain',
+            'text' => 'text/plain',
+            'md' => 'text/markdown',
+            'markdown' => 'text/markdown',
             'html' => 'text/html',
+            'htm' => 'text/html',
             'csv' => 'text/csv',
+            'tsv' => 'text/tab-separated-values',
+            'json' => 'application/json',
+            'xml' => 'application/xml',
+            'css' => 'text/css',
+            'js' => 'text/javascript',
+            'jsx' => 'text/plain',
+            'ts' => 'text/plain',
+            'tsx' => 'text/plain',
+            'php' => 'text/plain',
+            'py' => 'text/plain',
+            'java' => 'text/plain',
+            'c' => 'text/plain',
+            'cpp' => 'text/plain',
+            'h' => 'text/plain',
+            'hpp' => 'text/plain',
+            'sql' => 'text/plain',
+            'yml' => 'text/plain',
+            'yaml' => 'text/plain',
+            'ini' => 'text/plain',
+            'conf' => 'text/plain',
+            'log' => 'text/plain',
+            'srt' => 'text/plain',
+            'vtt' => 'text/vtt',
             'doc' => 'application/msword',
             'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'ppt' => 'application/vnd.ms-powerpoint',
@@ -682,10 +709,22 @@ class ConceptController extends Controller
         ];
         $mimeType = $mimeTypes[$extension] ?? (@mime_content_type($path) ?: 'application/pdf');
 
+        // Text-like resources need an explicit charset, otherwise the browser
+        // can mis-render non-ASCII bytes inside the protected iframe viewer.
+        $textLikeTypes = [
+            'text/plain', 'text/markdown', 'text/csv', 'text/tab-separated-values',
+            'application/json', 'application/xml', 'text/html', 'text/css',
+            'text/javascript', 'text/vtt',
+        ];
+        if (in_array($mimeType, $textLikeTypes, true)) {
+            $mimeType .= '; charset=UTF-8';
+        }
+
         return response()->file($path, [
             'Content-Type' => $mimeType,
             'Content-Disposition' => 'inline; filename="' . ($document->file_name ?: basename($path)) . '"',
             'Access-Control-Allow-Origin' => '*',
+            'Cross-Origin-Resource-Policy' => 'cross-origin',
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }
@@ -737,6 +776,7 @@ class ConceptController extends Controller
                 'Content-Length' => $fileSize,
                 'Accept-Ranges' => 'bytes',
                 'Access-Control-Allow-Origin' => '*',
+                'Cross-Origin-Resource-Policy' => 'cross-origin',
             ]);
         }
 
@@ -760,6 +800,7 @@ class ConceptController extends Controller
             'Content-Range' => "bytes $start-$end/$fileSize",
             'Accept-Ranges' => 'bytes',
             'Access-Control-Allow-Origin' => '*',
+            'Cross-Origin-Resource-Policy' => 'cross-origin',
         ];
 
         return response()->stream(function () use ($path, $start, $length) {
